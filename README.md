@@ -1,5 +1,5 @@
 
-# WhereAreYou - Android GPS tracking app
+# DIARY - Android Blog app
 This repository contains the source code for a project called "Diary", an Android forum-like app where users can register, post entries with option to attach media files. There's also a possibility to browse past entries.
 The app is special in the aspect that each entry will include multiple metadata, such as IP addresses and locations, which could raise some concern over the privacy of whoever chose to use the application.
 This project proposed by teacher Dr. Ghodrat Moghadampour and was developed in collaboration with Huy Pham, who provided the backend.
