@@ -1,0 +1,134 @@
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginVertical="20dp"
+	android:layout_marginHorizontal="40dp"
+	>
+
+
+	<com.google.android.material.card.MaterialCardView
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:theme="@style/AppTheme"
+		app:cardCornerRadius="4dp">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical">
+
+			<com.google.android.material.card.MaterialCardView
+				style="@style/CustomCardViewStyle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:cardBackgroundColor="@color/colorPrimary"
+				app:contentPadding="8dp">
+
+				<TextView
+					android:id="@+id/card_date_time"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:layout_gravity="end"
+					android:gravity="center"
+					android:text="28/12/2020 09:00:00"
+					android:textColor="#000000"
+					android:textSize="12dp" />
+
+				<TextView
+					android:id="@+id/card_name"
+					android:layout_width="wrap_content"
+					android:layout_height="match_parent"
+					android:fontFamily="sans-serif-medium"
+					android:text="Tester"
+					android:textColor="#000000" />
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<com.google.android.material.textfield.TextInputLayout
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="4dp"
+				android:layout_marginTop="8dp"
+				android:hint="Message">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/card_message"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="textMultiLine"
+					android:maxLines="5"
+					android:minLines="2"
+					android:text="Hello world" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+			<com.google.android.material.textfield.TextInputLayout
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="4dp"
+				android:layout_marginTop="8dp"
+				android:hint="Location">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/card_location"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					android:inputType="text"
+					android:text="123123, 123123" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+			<com.google.android.material.textfield.TextInputLayout
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="4dp"
+				android:layout_marginTop="8dp"
+				android:hint="IP Address">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/card_ip_address"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					android:inputType="text"
+					android:text="8.8.8.8" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+			<com.google.android.material.textfield.TextInputLayout
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="4dp"
+				android:layout_marginTop="8dp"
+				android:hint="File">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/card_file"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="start"
+					android:inputType="textMultiLine"
+					android:text="Camera_123123123.jpg" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+<!--			<com.google.android.material.button.MaterialButton-->
+<!--				android:id="@+id/card_download_button"-->
+<!--				android:layout_width="match_parent"-->
+<!--				android:layout_height="wrap_content"-->
+<!--				android:layout_marginHorizontal="4dp"-->
+<!--				android:text="Download file"-->
+<!--				app:backgroundTint="@android:color/darker_gray" />-->
+
+		</LinearLayout>
+
+	</com.google.android.material.card.MaterialCardView>
+</RelativeLayout>
