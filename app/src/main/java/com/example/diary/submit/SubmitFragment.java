@@ -1,10 +1,10 @@
 package com.example.diary.submit;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -13,11 +13,11 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -31,15 +31,25 @@ import androidx.fragment.app.Fragment;
 import com.example.diary.FileUtils;
 import com.example.diary.R;
 import com.example.diary.Utils;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +71,8 @@ import okhttp3.Response;
 
 public class SubmitFragment extends Fragment {
   private static final String TAG = "MyDebug";
+
+  static final int REQUEST_LOCATION_SETTINGS = 7090;
   static final int REQUEST_IMAGE_CAPTURE = 1000;
   static final int REQUEST_VIDEO_CAPTURE = 1001;
   static final int REQUEST_VOICE_CAPTURE = 1002;
@@ -106,7 +118,6 @@ public class SubmitFragment extends Fragment {
     return inflater.inflate(R.layout.submit_main, container, false);
   }
 
-  @SuppressLint("ClickableViewAccessibility")
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     // Name display
@@ -120,31 +131,11 @@ public class SubmitFragment extends Fragment {
     locationInfo = view.findViewById(R.id.location_info);
 
     locationInfo.setKeyListener(null); // Disable editing location info
-    locationInfo.setOnTouchListener(new View.OnTouchListener() {
-      @SuppressLint("ClickableViewAccessibility")
+    TextInputLayout locationInfoContainer = view.findViewById(R.id.location_info_container);
+    locationInfoContainer.setEndIconOnClickListener(new View.OnClickListener() {
       @Override
-      public boolean onTouch(View v, MotionEvent event) {
-        // final int DRAWABLE_LEFT = 0;
-        // final int DRAWABLE_TOP = 1;
-        final int DRAWABLE_RIGHT = 2;
-        // final int DRAWABLE_BOTTOM = 3;
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-          if (event.getX() >=
-              (
-                  locationInfo.getRight()
-                  - locationInfo
-                  .getCompoundDrawables()[DRAWABLE_RIGHT]
-                  .getBounds()
-                  .width()
-              )
-          ) {
-            onFetchLocation();
-
-            return true;
-          }
-        }
-        return false;
+      public void onClick(View view) {
+        onFetchLocation();
       }
     });
 
@@ -312,27 +303,6 @@ public class SubmitFragment extends Fragment {
           } finally {
             cursor.close();
           }
-          //
-          // // File outputDir = getActivity().getApplicationContext().getCacheDir();
-          // // File outputFile;
-          // // try {
-          // //   outputFile = File.createTempFile("diary_upload", "", outputDir);
-          // // } catch (IOException e) {
-          // //   e.printStackTrace();
-          // // }
-
-          // File file = new File(path);
-          //
-          // attachmentInfo.setText(String.format(
-          //     "Attached: 1 File " +
-          //         "\nName: %s" +
-          //         "\nFile size: %s KB",
-          //     file.getName(),
-          //     file.length() / 1000
-          // ));
-          //
-
-          // attachedFile = file;
 
           attachmentInfo.setText(String.format(
               "Attached: 1 File " +
@@ -362,38 +332,53 @@ public class SubmitFragment extends Fragment {
   }
 
   private void onFetchLocation() {
-    locationInfo.setText("Fetching location...");
+    // Setup LocationRequest object to check location settings
+    final LocationRequest[] locationRequest = {LocationRequest.create()};
+    locationRequest[0].setInterval(5000);
+    locationRequest[0].setFastestInterval(5000);
+    locationRequest[0].setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-    if (
-        ActivityCompat.checkSelfPermission(
-            getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(
-            getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED) {
-      Toast
-          .makeText(
-              getActivity().getApplicationContext(),
-              "No location permission, please allow it from Settings",
-              Toast.LENGTH_LONG
-          )
-          .show();
-      locationInfo.setText("Not available");
-      return;
-    }
+    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+        .addLocationRequest(locationRequest[0]);
 
-    fusedLocationClient.getLastLocation()
-        .addOnCompleteListener(new OnCompleteListener<Location>() {
+    // Check if location settings are satisfied
+    final SettingsClient client = LocationServices.getSettingsClient(getActivity());
+    Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+    task.addOnSuccessListener(getActivity(), new OnSuccessListener<LocationSettingsResponse>() {
+      @Override
+      public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+        if (
+            ActivityCompat.checkSelfPermission(
+                getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(
+                getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+          Toast
+              .makeText(
+                  getActivity().getApplicationContext(),
+                  "No location permission, please allow it from Settings",
+                  Toast.LENGTH_LONG
+              )
+              .show();
+          locationInfo.setText("Not available");
+          return;
+        }
+        LocationCallback locationCallback =  new LocationCallback() {
           @Override
-          public void onComplete(@NonNull Task<Location> task) {
-            if (task.isSuccessful() && task.getResult() != null) {
-              lastLocation = task.getResult();
+          public void onLocationResult(@NotNull LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            Location location = locationResult.getLastLocation();
+            if (location != null) {
+              lastLocation = location;
               locationInfo.setText(
                   String.format(
                       Locale.ENGLISH,
                       "%.4f, %.4f",
-                      lastLocation.getLatitude(),
-                      lastLocation.getLongitude()
+                      location.getLatitude(),
+                      location.getLongitude()
                   )
               );
             }
@@ -401,7 +386,34 @@ public class SubmitFragment extends Fragment {
               locationInfo.setText("Not available");
             }
           }
-        });
+        };
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest[0],
+            locationCallback,
+            Looper.myLooper()
+        );
+      }
+    });
+
+    task.addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+        if (e instanceof ResolvableApiException) {
+          // Location settings are wrong but can be fixed (turned on)
+          try {
+            ResolvableApiException resolvable = (ResolvableApiException) e;
+            startIntentSenderForResult(
+                resolvable.getResolution().getIntentSender(),
+                REQUEST_LOCATION_SETTINGS,
+                null, 0, 0, 0, null
+            );
+          } catch (IntentSender.SendIntentException sendEx) {
+            // Ignore the error
+          }
+        }
+      }
+    });
   }
 
   private void onSubmit() {

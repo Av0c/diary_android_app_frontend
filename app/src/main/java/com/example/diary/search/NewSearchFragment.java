@@ -21,6 +21,7 @@ import com.example.diary.R;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -36,8 +37,8 @@ public class NewSearchFragment extends DialogFragment {
   // Search criteria
   // private String phrase, ipAddress;
   // private double latLower, latUpper, longLower, longUpper;
-  private Date dateLower;
-  private Date dateUpper;
+  private Date dateLower = null;
+  private Date dateUpper = null;
 
   // Inputs
   private TextInputEditText phraseInput, ipInput,
@@ -52,14 +53,6 @@ public class NewSearchFragment extends DialogFragment {
   @NonNull
   @Override
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-    Calendar calendar = new GregorianCalendar();
-
-    calendar.set(2020, 0, 1);
-    dateLower = calendar.getTime();
-
-    calendar.set(2020, 11, 31);
-    dateUpper = calendar.getTime();
-
     // Use the Builder class for convenient dialog construction
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
@@ -92,8 +85,8 @@ public class NewSearchFragment extends DialogFragment {
             search.put("lat_upper", latUpperInput.getText().toString());
             search.put("long_lower", longLowerInput.getText().toString());
             search.put("long_upper", longUpperInput.getText().toString());
-            search.put("time_lower", formatter.format(dateLower));
-            search.put("time_upper", formatter.format(dateUpper));
+            search.put("time_lower", dateLower != null ? formatter.format(dateLower) : "");
+            search.put("time_upper", dateUpper != null ? formatter.format(dateUpper) : "");
             intent.putExtra("search", search);
             getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
           }
@@ -115,8 +108,10 @@ public class NewSearchFragment extends DialogFragment {
         if (!b) return;
 
         //Initialize your Date however you like it.
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(dateLower);
+        Calendar calendar = Calendar.getInstance();
+        if (dateLower != null) {
+          calendar.setTime(dateLower);
+        }
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -134,8 +129,10 @@ public class NewSearchFragment extends DialogFragment {
         if (!b) return;
 
         //Initialize your Date however you like it.
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(dateUpper);
+        Calendar calendar = Calendar.getInstance();
+        if (dateUpper != null) {
+          calendar.setTime(dateUpper);
+        }
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);

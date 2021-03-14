@@ -51,10 +51,14 @@
 		</com.google.android.material.textfield.TextInputLayout>
 
 		<com.google.android.material.textfield.TextInputLayout
+			android:id="@+id/location_info_container"
 			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="12dp"
+			app:endIconMode="custom"
+			app:endIconDrawable="@drawable/ic_baseline_refresh_24"
+			app:endIconTint="@color/colorPrimary"
 			android:hint="Location">
 
 			<com.google.android.material.textfield.TextInputEditText
@@ -62,8 +66,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textIsSelectable="false"
-				android:drawableEnd="@drawable/ic_baseline_refresh_24"
-				android:drawableTint="@color/colorPrimary"
 				android:text="Not available" />
 
 		</com.google.android.material.textfield.TextInputLayout>

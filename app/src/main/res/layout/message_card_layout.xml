@@ -8,13 +8,11 @@
 
 
 	<com.google.android.material.card.MaterialCardView
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:theme="@style/AppTheme"
 		app:cardCornerRadius="4dp">
-
+/*
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -67,11 +65,15 @@
 			</com.google.android.material.textfield.TextInputLayout>
 
 			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/card_location_container"
 				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginHorizontal="4dp"
 				android:layout_marginTop="8dp"
+				app:endIconMode="custom"
+				app:endIconDrawable="@drawable/ic_baseline_open_in_new_24"
+				app:endIconTint="@color/colorPrimary"
 				android:hint="Location">
 
 				<com.google.android.material.textfield.TextInputEditText
@@ -80,7 +82,8 @@
 					android:layout_height="wrap_content"
 					android:layout_marginTop="8dp"
 					android:inputType="text"
-					android:text="123123, 123123" />
+					android:textIsSelectable="false"
+					android:text="123123, 123123"/>
 
 			</com.google.android.material.textfield.TextInputLayout>
 
@@ -103,11 +106,15 @@
 			</com.google.android.material.textfield.TextInputLayout>
 
 			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/card_file_container"
 				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginHorizontal="4dp"
 				android:layout_marginTop="8dp"
+				app:endIconMode="custom"
+				app:endIconDrawable="@drawable/ic_baseline_open_in_new_24"
+				app:endIconTint="@color/colorPrimary"
 				android:hint="File">
 
 				<com.google.android.material.textfield.TextInputEditText
@@ -119,14 +126,6 @@
 					android:text="Camera_123123123.jpg" />
 
 			</com.google.android.material.textfield.TextInputLayout>
-
-<!--			<com.google.android.material.button.MaterialButton-->
-<!--				android:id="@+id/card_download_button"-->
-<!--				android:layout_width="match_parent"-->
-<!--				android:layout_height="wrap_content"-->
-<!--				android:layout_marginHorizontal="4dp"-->
-<!--				android:text="Download file"-->
-<!--				app:backgroundTint="@android:color/darker_gray" />-->
 
 		</LinearLayout>
 
