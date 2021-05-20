@@ -35,7 +35,6 @@
 		<item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlayCustomCard</item>
 	</style>
 
-
 	<style name="ShapeAppearanceOverlayCustomCard" parent="">
 		<item name="cornerFamily">rounded</item>
 		<item name="cornerSizeTopRight">4dp</item>

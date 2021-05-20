@@ -1,55 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:paddingHorizontal="24dp">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/usernameLoginLayout"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="12dp">
+
+    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/usernameLoginInput"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/usernameLoginLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/usernameLoginInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Username"
+                android:inputType="text"
+                android:text="test"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordLoginLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
-            android:inputType="text"
-            android:textSize="18sp"
-            android:text="test" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:endIconMode="password_toggle">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordLoginInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:text="test"
+                android:textSize="18sp" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordLoginLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="password_toggle">
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/passwordLoginInput"
+        <Button
+            android:id="@+id/buttonLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:text="test"
-            android:textSize="18sp" />
+            android:text="Login" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <Button
+            android:id="@+id/buttonRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Register" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/buttonLogin"
-        android:layout_width="match_parent"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/api_config_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login" />
+        android:backgroundTint="@color/colorPrimary"
+        android:tooltipText="Set API root url"
+        app:fabSize="mini"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:borderWidth="0dp"
+        app:srcCompat="@drawable/ic_baseline_settings_24" />
 
-    <Button
-        android:id="@+id/buttonRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Register" />
+</androidx.constraintlayout.widget.ConstraintLayout>
 
-</LinearLayout>

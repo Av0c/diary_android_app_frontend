@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="api_root" translatable="false">https://www.cc.puv.fi/~e1601124/media_chest/api/</string>
+    <string name="default_api_root" translatable="false">https://www.cc.puv.fi/~e1601124/media_chest/api/</string>
 </resources>

@@ -1,159 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="40dp"
+    android:paddingBottom="12dp">
 
-	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:fillViewport="false">
-		<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical"
-		android:paddingHorizontal="40dp"
-		android:paddingTop="40dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="20dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/name_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:inputType="text"
+                        android:text="Jason" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Message">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/message_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:lines="5"
+                        android:maxLines="5" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/location_info_container"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Location"
+                    app:endIconDrawable="@drawable/ic_baseline_refresh_24"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/colorPrimary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/location_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Not available"
+                        android:textIsSelectable="false" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Attachment (Optional)">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/attachment_info_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:enabled="false"
+                        android:inputType="textMultiLine"
+                        android:text="No file attached" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/attachment_camera_button"
+                        style="@style/Button.Attachment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:tooltipText="Take a photo"
+                        app:icon="@drawable/ic_photo_camera_black_24dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/attachment_record_button"
+                        style="@style/Button.Attachment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:tooltipText="Record a video"
+                        app:icon="@drawable/ic_record_black_24dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/attachment_voice_button"
+                        style="@style/Button.Attachment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:tooltipText="Record a voice clip"
+                        app:icon="@drawable/ic_voice_black_24dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/attachment_file_button"
+                        style="@style/Button.Attachment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="0dp"
+                        android:layout_weight="1"
+                        android:tooltipText="Select a file"
+                        app:icon="@drawable/ic_attach_file_black_24dp" />
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/clear_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Clear file"
+                    app:backgroundTint="@android:color/darker_gray" />
+
+                <View
+                    android:id="@+id/tab_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginVertical="10dp"
+                    android:background="@color/colorSeparator" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/submit_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Submit" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/logout_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:backgroundTint="@android:color/darker_gray"
+                    android:text="Logout"
+                    android:layout_gravity="end"
+                    />
+
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
 
 
 
-		<com.google.android.material.textfield.TextInputLayout
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="Name">
-
-			<com.google.android.material.textfield.TextInputEditText
-				android:id="@+id/name_input"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:inputType="text"
-				android:enabled="false"
-				android:text="Jason" />
-
-		</com.google.android.material.textfield.TextInputLayout>
-
-		<com.google.android.material.textfield.TextInputLayout
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="Message">
-
-			<com.google.android.material.textfield.TextInputEditText
-				android:id="@+id/message_input"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:inputType="textMultiLine"
-				android:lines="5"
-				android:maxLines="5" />
-
-		</com.google.android.material.textfield.TextInputLayout>
-
-		<com.google.android.material.textfield.TextInputLayout
-			android:id="@+id/location_info_container"
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="12dp"
-			app:endIconMode="custom"
-			app:endIconDrawable="@drawable/ic_baseline_refresh_24"
-			app:endIconTint="@color/colorPrimary"
-			android:hint="Location">
-
-			<com.google.android.material.textfield.TextInputEditText
-				android:id="@+id/location_info"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:textIsSelectable="false"
-				android:text="Not available" />
-
-		</com.google.android.material.textfield.TextInputLayout>
-
-		<com.google.android.material.textfield.TextInputLayout
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="12dp"
-			android:hint="Attachment (Optional)">
-
-			<com.google.android.material.textfield.TextInputEditText
-				android:id="@+id/attachment_info_text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:clickable="true"
-				android:enabled="false"
-				android:inputType="textMultiLine"
-				android:text="No file attached" />
-		</com.google.android.material.textfield.TextInputLayout>
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="horizontal"
-			android:layout_marginTop="6dp"
-			android:weightSum="4">
-
-			<com.google.android.material.button.MaterialButton
-				android:id="@+id/attachment_camera_button"
-				style="@style/Button.Attachment"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:tooltipText="Take a photo"
-				app:icon="@drawable/ic_photo_camera_black_24dp" />
-
-			<com.google.android.material.button.MaterialButton
-				android:id="@+id/attachment_record_button"
-				style="@style/Button.Attachment"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:tooltipText="Record a video"
-				app:icon="@drawable/ic_record_black_24dp" />
-
-			<com.google.android.material.button.MaterialButton
-				android:id="@+id/attachment_voice_button"
-				style="@style/Button.Attachment"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:tooltipText="Record a voice clip"
-				app:icon="@drawable/ic_voice_black_24dp" />
-
-			<com.google.android.material.button.MaterialButton
-				android:id="@+id/attachment_file_button"
-				style="@style/Button.Attachment"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginEnd="0dp"
-				android:layout_weight="1"
-				android:tooltipText="Select a file"
-				app:icon="@drawable/ic_attach_file_black_24dp" />
-
-		</LinearLayout>
-
-		<com.google.android.material.button.MaterialButton
-			android:id="@+id/clear_button"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="Clear file"
-			app:backgroundTint="@android:color/darker_gray" />
-
-		<View
-			android:id="@+id/tab_divider"
-			android:layout_width="match_parent"
-			android:layout_height="2dp"
-			android:layout_marginVertical="10dp"
-			android:background="@color/colorSeparator" />
-
-		<com.google.android.material.button.MaterialButton
-			android:id="@+id/submit_button"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="Submit" />
-
-	</LinearLayout>
-	</ScrollView>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

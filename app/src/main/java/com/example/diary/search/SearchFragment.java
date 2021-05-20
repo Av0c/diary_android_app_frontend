@@ -3,25 +3,34 @@ package com.example.diary.search;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -41,14 +50,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class SearchFragment extends Fragment {
   private static final String TAG = "MyDebug";
   private static final int NEW_SEARCH_REQUEST_CODE = 779779;
+  private static final String[] IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "bmp", "gif"};
   public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   // Global UI elements
@@ -105,7 +119,7 @@ public class SearchFragment extends Fragment {
   private void onNewSearch(Map<String, String> search) {
     resultTitle.setText("Fetching data...");
 
-    AndroidNetworking.get(getString(R.string.api_root)+"media")
+    AndroidNetworking.get(Utils.getApiRoot(getContext()) + "media")
         .addHeaders("Authorization", "Basic " + Utils.getAuthentication(getActivity()))
         .addQueryParameter(search)
         .setTag("searchMedias")
@@ -168,7 +182,6 @@ public class SearchFragment extends Fragment {
     final TextInputEditText cardLocation = cardView.findViewById(R.id.card_location);
     final TextInputEditText cardIpAddress = cardView.findViewById(R.id.card_ip_address);
     final TextInputEditText cardFile = cardView.findViewById(R.id.card_file);
-    // MaterialButton cardDownload = cardView.findViewById(R.id.card_download_button);
 
     // De-activate inputs for read-only texts
     cardMessage.setKeyListener(null);
@@ -219,12 +232,34 @@ public class SearchFragment extends Fragment {
 
       final JSONObject finalResult = result;
 
+      String fileExtension = "";
+
+      int i = fileString.lastIndexOf('.');
+      if (i > 0) {
+        fileExtension = fileString.substring(i+1);
+      }
+
+      final String fileUrl = Utils.getApiRoot(getContext())
+              + "media/file/" + finalResult.getString("id");
+
+      if (Arrays.asList(IMAGE_EXTENSIONS).contains(fileExtension)) {
+        LinearLayout containerLayout = cardView.findViewById(R.id.card_image_preview_layout);
+        containerLayout.setVisibility(View.VISIBLE);
+        LinearLayout.LayoutParams layoutParams
+            = (LinearLayout.LayoutParams) containerLayout.getLayoutParams();
+        layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        containerLayout.setLayoutParams(layoutParams);
+        new DownloadImageTask(
+                (ImageView) cardView.findViewById(R.id.card_image_view)
+        ).execute(fileUrl);
+      }
+
       cardFileContainer.setEndIconOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
           try {
             downloadFile(
-                getString(R.string.api_root) + "media/file/" + finalResult.getString("id"),
+                    Utils.getApiRoot(getContext()) + "media/file/" + finalResult.getString("id"),
                 finalResult.getString("file_name")
             );
           } catch (JSONException e) {
@@ -243,9 +278,12 @@ public class SearchFragment extends Fragment {
   private void downloadFile(String url, String fileName) {
     DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-        .setDestinationInExternalPublicDir(
+        .setDestinationInExternalFilesDir(
+//            Environment.DIRECTORY_DOWNLOADS,
+//            getString(R.string.download_dir) + "/" + fileName
+            getContext(),
             Environment.DIRECTORY_DOWNLOADS,
-            getString(R.string.download_dir) + fileName
+            getString(R.string.download_dir) + "/" + fileName
         )
         .setMimeType(
             MimeTypeMap.getSingleton().getMimeTypeFromExtension(
@@ -257,6 +295,8 @@ public class SearchFragment extends Fragment {
         .setRequiresCharging(false)// Set if charging is required to begin the download
         .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
         .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+
+    request.allowScanningByMediaScanner();
 
     DownloadManager downloadManager =
         (DownloadManager)this.getActivity().getSystemService(DOWNLOAD_SERVICE);
@@ -272,28 +312,37 @@ public class SearchFragment extends Fragment {
       if (downloadId == id) {
         DownloadManager downloadManager =
             (DownloadManager)getActivity().getSystemService(DOWNLOAD_SERVICE);
-        // Get URI and MIME type of file
-        Uri uri = downloadManager.getUriForDownloadedFile(id);
 
-        Cursor cursor = getActivity()
-            .getContentResolver()
-            .query(uri, null, null, null);
-        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        cursor.moveToFirst();
-        String fileName = cursor.getString(nameIndex);
-        cursor.close();
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterById(downloadId);
+        Cursor downloadCursor = downloadManager.query(query);
 
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-            MimeTypeMap.getFileExtensionFromUrl(fileName)
-        );
+        String localUri = "";
+        String mime = "";
+
+        if (downloadCursor.moveToFirst()) {
+          localUri = downloadCursor.getString(downloadCursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+          mime = downloadCursor.getString(downloadCursor.getColumnIndex(DownloadManager.COLUMN_MEDIA_TYPE));
+        }
+        downloadCursor.close();
+
+        File file = new File(Uri.parse(localUri).getPath());
+
+        String fileExtension = "";
+
+        int i = file.getName().lastIndexOf('.');
+        if (i > 0) {
+          fileExtension = file.getName().substring(i+1);
+        }
+
+        if (fileExtension.equals("m4a")) {
+          mime = "audio/*";
+        }
 
         Uri fileUri = FileProvider.getUriForFile(
-            getContext(),
-            "com.example.diary.fileprovider",
-            new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                getString(R.string.download_dir) + fileName
-            )
+            getActivity().getApplicationContext(),
+            getActivity().getPackageName() + ".provider",
+            file
         );
 
         // Open file with user selected app
@@ -301,24 +350,34 @@ public class SearchFragment extends Fragment {
         fileIntent.setAction(Intent.ACTION_VIEW);
         fileIntent.setDataAndType(fileUri, mime);
         fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
         startActivity(fileIntent);
       }
     }
   };
 
-  // public void openFile(String filename) {
-  //   File path = new File(getFilesDir(), "dl");
-  //   File file = new File(path, filename);
-  //
-  //   // Get URI and MIME type of file
-  //   Uri uri = FileProvider.getUriForFile(this, App.PACKAGE_NAME + ".fileprovider", file);
-  //   String mime = getContentResolver().getType(uri);
-  //
-  //   // Open file with user selected app
-  //   Intent intent = new Intent();
-  //   intent.setAction(Intent.ACTION_VIEW);
-  //   intent.setDataAndType(uri, mime);
-  //   intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-  //   startActivity(intent);
-  // }
+  private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+    ImageView bmImage;
+
+    public DownloadImageTask(ImageView bmImage) {
+      this.bmImage = bmImage;
+    }
+
+    protected Bitmap doInBackground(String... urls) {
+      String urlDisplay = urls[0];
+      Bitmap mIcon = null;
+      try {
+        InputStream in = new java.net.URL(urlDisplay).openStream();
+        mIcon = BitmapFactory.decodeStream(in);
+      } catch (Exception e) {
+        Log.e("Error", e.getMessage());
+        e.printStackTrace();
+      }
+      return mIcon;
+    }
+
+    protected void onPostExecute(Bitmap result) {
+      bmImage.setImageBitmap(result);
+    }
+  }
 }

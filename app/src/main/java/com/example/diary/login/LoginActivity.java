@@ -16,6 +16,8 @@ import com.androidnetworking.interfaces.OkHttpResponseListener;
 import com.example.diary.MainActivity;
 import com.example.diary.R;
 import com.example.diary.Utils;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -26,7 +28,6 @@ import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity
   implements RegisterDialog.OnRegisterListener {
-  private static final String TAG = "MyDebug";
   // Components
   private TextInputEditText usernameLoginInput;
   private TextInputLayout usernameLoginLayout;
@@ -46,6 +47,16 @@ public class LoginActivity extends AppCompatActivity
 
     Button buttonLogin = findViewById(R.id.buttonLogin);
     Button buttonRegister = findViewById(R.id.buttonRegister);
+    FloatingActionButton apiConfigButton = findViewById(R.id.api_config_button);
+
+    apiConfigButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        DialogFragment newFragment = new ApiConfigDialog();
+
+        newFragment.show(getSupportFragmentManager(), "ApiConfigDialog");
+      }
+    });
 
     buttonLogin.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -110,7 +121,7 @@ public class LoginActivity extends AppCompatActivity
     usernameLoginLayout.setError(null);
     passwordLoginLayout.setError(null);
 
-    AndroidNetworking.post(getString(R.string.api_root)+"user")
+    AndroidNetworking.post(Utils.getApiRoot(this.getApplicationContext()) + "user")
         .addBodyParameter("username", username)
         .addBodyParameter("password", password)
         .setTag("postUserRegister")
@@ -151,7 +162,7 @@ public class LoginActivity extends AppCompatActivity
       e.printStackTrace();
     }
 
-    AndroidNetworking.post(getString(R.string.api_root)+"user/login")
+    AndroidNetworking.post(Utils.getApiRoot(this.getApplicationContext()) + "user/login")
         .addBodyParameter("username", username)
         .addBodyParameter("password", password)
         .setTag("postUserLogin")

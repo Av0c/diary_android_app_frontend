@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import com.example.diary.FileUtils;
 import com.example.diary.R;
 import com.example.diary.Utils;
+import com.example.diary.login.LoginActivity;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -54,6 +55,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -84,7 +86,7 @@ public class SubmitFragment extends Fragment {
 
   private FusedLocationProviderClient fusedLocationClient;
 
-  private String photoPath;
+  private String mediaPath;
   private File attachedFile;
   private Location lastLocation;
 
@@ -108,6 +110,9 @@ public class SubmitFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    Log.d(TAG, "Debugging");
+
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
     Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
   }
@@ -192,6 +197,15 @@ public class SubmitFragment extends Fragment {
       }
     });
 
+    MaterialButton logoutButton = view.findViewById(R.id.logout_button);
+    logoutButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        startActivity(intent);
+      }
+    });
+
     // Fetch first location infos
     onFetchLocation();
   }
@@ -199,15 +213,16 @@ public class SubmitFragment extends Fragment {
   @Override
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+
     if (resultCode == Activity.RESULT_OK) {
       switch (requestCode) {
         case REQUEST_IMAGE_CAPTURE: {
           // User took a photo
-          File imageFile = new File(photoPath);
+          File imageFile = new File(mediaPath);
 
           BitmapFactory.Options bitMapOption = new BitmapFactory.Options();
           bitMapOption.inJustDecodeBounds = true;
-          BitmapFactory.decodeFile(photoPath, bitMapOption);
+          BitmapFactory.decodeFile(mediaPath, bitMapOption);
 
           int imageWidth = bitMapOption.outWidth;
           int imageHeight = bitMapOption.outHeight;
@@ -225,9 +240,13 @@ public class SubmitFragment extends Fragment {
         break;
         case REQUEST_VIDEO_CAPTURE: {
           // User record a video
-          Uri videoUri = data.getData();
-          String videoPath = FileUtils.getPath(getActivity().getApplicationContext(), videoUri);
-          File videoFile = new File(videoPath);
+          File videoFile = new File(mediaPath);
+
+          Uri videoUri = FileProvider.getUriForFile(
+              getActivity().getApplicationContext(),
+              getActivity().getPackageName() + ".provider",
+              videoFile
+          );
 
           MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
           metadataRetriever.setDataSource(getActivity().getApplicationContext(), videoUri);
@@ -255,12 +274,14 @@ public class SubmitFragment extends Fragment {
         case REQUEST_VOICE_CAPTURE: {
           // User record a audio clip using the built-in recorder
           // If device has no built-in recorder, button does nothing
-          Uri voiceUri = data.getData();
-          String voicePath = FileUtils.getPath(getActivity().getApplicationContext(), voiceUri);
+          Uri localUri = data.getData();
+
+          String voicePath = FileUtils.getPath(getActivity().getApplicationContext(), localUri);
+
           File voiceFile = new File(voicePath);
 
           MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();
-          metadataRetriever.setDataSource(getActivity().getApplicationContext(), voiceUri);
+          metadataRetriever.setDataSource(getActivity().getApplicationContext(), localUri);
           String duration = metadataRetriever
               .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 
@@ -327,6 +348,9 @@ public class SubmitFragment extends Fragment {
           }
         }
         break;
+        case REQUEST_LOCATION_SETTINGS:
+          onFetchLocation();
+          break;
       }
     }
   }
@@ -348,6 +372,7 @@ public class SubmitFragment extends Fragment {
     task.addOnSuccessListener(getActivity(), new OnSuccessListener<LocationSettingsResponse>() {
       @Override
       public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+        Log.d(TAG, "Location settings success");
         if (
             ActivityCompat.checkSelfPermission(
                 getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
@@ -366,25 +391,23 @@ public class SubmitFragment extends Fragment {
           locationInfo.setText("Not available");
           return;
         }
+        Log.d(TAG, "Location permission is good");
+        Log.d(TAG, locationRequest[0].toString());
         LocationCallback locationCallback =  new LocationCallback() {
           @Override
           public void onLocationResult(@NotNull LocationResult locationResult) {
+            Log.d(TAG, locationResult.toString());
             super.onLocationResult(locationResult);
             Location location = locationResult.getLastLocation();
-            if (location != null) {
-              lastLocation = location;
-              locationInfo.setText(
-                  String.format(
-                      Locale.ENGLISH,
-                      "%.4f, %.4f",
-                      location.getLatitude(),
-                      location.getLongitude()
-                  )
-              );
-            }
-            else {
-              locationInfo.setText("Not available");
-            }
+            lastLocation = location;
+            locationInfo.setText(
+                String.format(
+                    Locale.ENGLISH,
+                    "%.4f, %.4f",
+                    location.getLatitude(),
+                    location.getLongitude()
+                )
+            );
           }
         };
 
@@ -399,17 +422,24 @@ public class SubmitFragment extends Fragment {
     task.addOnFailureListener(new OnFailureListener() {
       @Override
       public void onFailure(@NonNull Exception e) {
+        Log.d(TAG, "Location settings failed: " + e.toString());
         if (e instanceof ResolvableApiException) {
           // Location settings are wrong but can be fixed (turned on)
           try {
             ResolvableApiException resolvable = (ResolvableApiException) e;
-            startIntentSenderForResult(
-                resolvable.getResolution().getIntentSender(),
-                REQUEST_LOCATION_SETTINGS,
-                null, 0, 0, 0, null
+//            startIntentSenderForResult(
+//                resolvable.getResolution().getIntentSender(),
+//                REQUEST_LOCATION_SETTINGS,
+//                null, 0, 0, 0, null
+//            );
+            Log.d(TAG, "Trying to resolve: " + resolvable.toString());
+            resolvable.startResolutionForResult(
+                getActivity(),
+                REQUEST_LOCATION_SETTINGS
             );
+
           } catch (IntentSender.SendIntentException sendEx) {
-            // Ignore the error
+            Log.e(TAG, "Failed to resolve location settings");
           }
         }
       }
@@ -443,7 +473,7 @@ public class SubmitFragment extends Fragment {
 
     RequestBody requestBody = body.build();
 
-    post(getString(R.string.api_root) + "media", requestBody, new Callback() {
+    post(Utils.getApiRoot(getContext()) + "media", requestBody, new Callback() {
       @Override
       public void onFailure(Call call, IOException e) {
         Log.e(TAG, "MEDIA FAIL: " + e.toString());
@@ -517,23 +547,24 @@ public class SubmitFragment extends Fragment {
     return null;
   }
 
-  private File createImageFile() throws IOException {
-    // Create an image file name
+  private File createFile(String dirType, String suffix) throws IOException {
+    // Create a file name
     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-    String imageFileName = "DIARY_" + timeStamp + "_";
+    String fileName = "DIARY_" + timeStamp + "_";
+
     File storageDir = getActivity()
         .getApplicationContext()
-        .getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        .getExternalFilesDir(dirType);
 
-    File imageFile = File.createTempFile(
-        imageFileName,
-        ".jpg",
+    File file = File.createTempFile(
+        fileName,
+        suffix,
         storageDir
     );
 
-    photoPath = imageFile.getAbsolutePath();
+    mediaPath = file.getAbsolutePath();
 
-    return imageFile;
+    return file;
   }
 
   private void dispatchTakePictureIntent() {
@@ -541,7 +572,7 @@ public class SubmitFragment extends Fragment {
     try {
       File photoFile = null;
       try {
-        photoFile = createImageFile();
+        photoFile = createFile(Environment.DIRECTORY_DCIM, ".jpg");
       } catch (IOException e) {
         Log.e("Failed to create image file", e.getMessage());
       }
@@ -549,7 +580,7 @@ public class SubmitFragment extends Fragment {
       if (photoFile != null) {
         Uri photoURI = FileProvider.getUriForFile(
             getActivity().getApplicationContext(),
-            "com.example.diary.fileprovider",
+            "com.example.diary.provider",
             photoFile
         );
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -563,15 +594,31 @@ public class SubmitFragment extends Fragment {
   private void dispatchTakeVideoIntent() {
     Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
     try {
-      startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
+      File file = null;
+      try {
+        file = createFile(Environment.DIRECTORY_DCIM, ".mp4");
+      } catch (IOException e) {
+        Log.e("Failed to create video file", e.getMessage());
+      }
+
+      if (file != null) {
+        Uri uri = FileProvider.getUriForFile(
+            getActivity().getApplicationContext(),
+            "com.example.diary.provider",
+            file
+        );
+        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
+      }
+
     } catch (ActivityNotFoundException e) {
       Log.e("Failed to start intent", e.getMessage());
     }
   }
 
   private void dispatchVoiceRecordIntent() {
-    Intent voiceIntent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
     try {
+      Intent voiceIntent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
       startActivityForResult(voiceIntent, REQUEST_VOICE_CAPTURE);
     } catch (ActivityNotFoundException e) {
       Log.e("Failed to start intent", e.getMessage());

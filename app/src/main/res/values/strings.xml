@@ -3,5 +3,5 @@
 
 	<string name="tab_text_1">Submit</string>
 	<string name="tab_text_2">Search</string>
-	<string name="download_dir">Diary Downloads/</string>
+	<string name="download_dir">Diary Downloads</string>
 </resources>
