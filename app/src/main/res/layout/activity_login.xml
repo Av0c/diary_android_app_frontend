@@ -24,7 +24,6 @@
                 android:layout_height="wrap_content"
                 android:hint="Username"
                 android:inputType="text"
-                android:text="test"
                 android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -41,7 +40,6 @@
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:text="test"
                 android:textSize="18sp" />
 
         </com.google.android.material.textfield.TextInputLayout>

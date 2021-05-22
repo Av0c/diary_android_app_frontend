@@ -3,8 +3,6 @@ package com.example.diary.search;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,11 +11,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +25,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -51,11 +45,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
@@ -63,7 +55,6 @@ public class SearchFragment extends Fragment {
   private static final String TAG = "MyDebug";
   private static final int NEW_SEARCH_REQUEST_CODE = 779779;
   private static final String[] IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "bmp", "gif"};
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   // Global UI elements
   private TextView resultTitle;

@@ -21,22 +21,19 @@ import com.example.diary.R;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Locale;
 
-import static com.example.diary.search.SearchFragment.DATE_TIME_FORMAT;
-
 public class NewSearchFragment extends DialogFragment {
   private static final int DATE_LOWER_PICKER_REQUEST = 321000;
   private static final int DATE_UPPER_PICKER_REQUEST = 323000;
 
+  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
   // Search criteria
-  // private String phrase, ipAddress;
-  // private double latLower, latUpper, longLower, longUpper;
   private Date dateLower = null;
   private Date dateUpper = null;
 
